@@ -49,7 +49,7 @@ func main() {
 }
 func readSession() (whatsapp.Session, error) {
 	session := whatsapp.Session{}
-	file, err := os.Open(os.TempDir() + "/whatsappSession.gob")
+	file, err := os.Open("../sessions//whatsappSession.gob")
 	if err != nil {
 		return session, err
 	}
@@ -63,7 +63,7 @@ func readSession() (whatsapp.Session, error) {
 }
 
 func writeSession(session whatsapp.Session) error {
-	file, err := os.Create(os.TempDir() + "/whatsappSession.gob")
+	file, err := os.Create("../sessions//whatsappSession.gob")
 	if err != nil {
 		return err
 	}

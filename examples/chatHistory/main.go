@@ -60,6 +60,7 @@ func main() {
 
 	//login or restore
 	if err := login(wac); err != nil {
+		
 		log.Fatalf("error logging in: %v\n", err)
 	}
 
@@ -123,7 +124,7 @@ func login(wac *whatsapp.Conn) error {
 
 func readSession() (whatsapp.Session, error) {
 	session := whatsapp.Session{}
-	file, err := os.Open(os.TempDir() + "/whatsappSession.gob")
+	file, err := os.Open("../sessions//whatsappSession.gob")
 	if err != nil {
 		return session, err
 	}
@@ -137,11 +138,11 @@ func readSession() (whatsapp.Session, error) {
 }
 
 func deleteSession() error {
-	return os.Remove(os.TempDir() + "/whatsappSession.gob")
+	return os.Remove("../sessions//whatsappSession.gob")
 }
 
 func writeSession(session whatsapp.Session) error {
-	file, err := os.Create(os.TempDir() + "/whatsappSession.gob")
+	file, err := os.Create("../sessions//whatsappSession.gob")
 	if err != nil {
 		return err
 	}
