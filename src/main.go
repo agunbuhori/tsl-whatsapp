@@ -10,7 +10,6 @@ import (
 	"time"
 	"context"
 	"strings"
-	"net/http"
 	"regexp"
 	"github.com/Rhymen/go-whatsapp/binary/proto"
 
@@ -41,10 +40,6 @@ func GetClient() *mongo.Client {
 }
 
 var c = GetClient()
-
-func enableCors(w *http.ResponseWriter) {
-	(*w).Header().Set("Access-Control-Allow-Origin", "*")
-}
 
 func main() {
 	// readMessage()
@@ -122,8 +117,6 @@ func updateRegistrant(client *mongo.Client, whatsapp string, docID string) {
 	}
 	
 	fmt.Println("UpdateOne() result:", updateResult)
-
-	sendMessage(whatsapp, "Pendaftaran berhasil, berikut profil antum : http://52.221.245.243/profile/"+docID);
 }
 
 //Optional to be implemented. Implement HandleXXXMessage for the types you need.
