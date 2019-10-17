@@ -123,7 +123,7 @@ func updateRegistrant(client *mongo.Client, whatsapp string, docID string) {
 	
 	fmt.Println("UpdateOne() result:", updateResult)
 
-	sendMessage(whatsapp, "Pendaftaran berhasil dong :p")
+	sendMessage(whatsapp, "Pendaftaran berhasil, berikut profil antum : http://52.221.245.243/profile/"+docID);
 }
 
 //Optional to be implemented. Implement HandleXXXMessage for the types you need.
