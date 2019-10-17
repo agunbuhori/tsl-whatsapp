@@ -56,21 +56,6 @@ func main() {
         log.Println("Connected!")
     }
 
-	http.HandleFunc("/send", func(w http.ResponseWriter, r *http.Request) {
-		enableCors(&w)
-
-		if (r.Method == http.MethodPost) {
-			number := r.FormValue("number");
-			message := r.FormValue("message");
-
-			sendMessage(number, message)
-			
-			fmt.Fprintf(w, "Message sent to +"+number)
-		} else {
-			log.Print("Method denied")
-		}
-	})
-
 	readMessage()
 }
 
@@ -137,6 +122,8 @@ func updateRegistrant(client *mongo.Client, whatsapp string, docID string) {
 	}
 	
 	fmt.Println("UpdateOne() result:", updateResult)
+
+	sendMessage(whatsapp, "Pendaftaran berhasil dong :p")
 }
 
 //Optional to be implemented. Implement HandleXXXMessage for the types you need.
@@ -189,7 +176,6 @@ func readMessage() {
 	
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	log.Fatal(http.ListenAndServe(":8080", nil))
 	<-c
 
 	//Disconnect safe
