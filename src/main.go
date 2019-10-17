@@ -11,14 +11,17 @@ import (
 	"context"
 	"strings"
 	"net/http"
+	"regexp"
 	"github.com/Rhymen/go-whatsapp/binary/proto"
 
 	qrcodeTerminal "github.com/Baozisoftware/qrcode-terminal-go"
 	"github.com/Rhymen/go-whatsapp"
 	
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func GetClient() *mongo.Client {
@@ -107,6 +110,35 @@ func (h *waHandler) HandleError(err error) {
 	}
 }
 
+type Registrant struct {
+	Name string
+	Age int
+	Gender string
+	Country string
+	Province string
+	City string
+	WhatsApp string
+}
+
+func updateRegistrant(client *mongo.Client, whatsapp string, docID string) {
+	collection := client.Database("tsl").Collection("registrants")
+	
+	objID, err := primitive.ObjectIDFromHex(docID)
+	filter := bson.M{"_id": bson.M{"$eq": objID}}
+	update := bson.M{
+		"$set": bson.M{
+			"whatsapp": ""+whatsapp+"",
+		},
+	}
+
+	updateResult, err := collection.UpdateOne(context.TODO(), filter, update)
+    if err != nil {
+        log.Fatalln("Error on inserting new Hero", err)
+	}
+	
+	fmt.Println("UpdateOne() result:", updateResult)
+}
+
 //Optional to be implemented. Implement HandleXXXMessage for the types you need.
 func (*waHandler) HandleTextMessage(message whatsapp.TextMessage) {
 	// fmt.Printf("%v %v %v %v\n\t%v\n", message.Info.Timestamp, message.Info.Id, message.Info.RemoteJid, message.Info.QuotedMessageID, message.Text)
@@ -122,10 +154,15 @@ func (*waHandler) HandleTextMessage(message whatsapp.TextMessage) {
 
 		replacer := strings.NewReplacer("@s.whatsapp.net", "")
 		WANumber := replacer.Replace(message.Info.RemoteJid)
-
-		log.Printf("%v => %v => %v => %v", message.Info.Timestamp, time.Now().Unix(), min, message.Info.RemoteJid)
-		sender := Sender{Number: WANumber, Message: message.Text}
+		regex, _ := regexp.Compile(`\[[a-z0-9]+\]`)
+		str := regex.FindString(message.Text)
+		trim1 := strings.Trim(str, "[")
+		trim2 := strings.Trim(trim1, "]")
+		sender := Sender{Number: WANumber, Message: trim2}
+		
+		log.Printf("%v => %v", message.Info.RemoteJid, trim2)
 		createSender(c, sender)
+		updateRegistrant(c, WANumber, trim2)
 	}
 }
 
